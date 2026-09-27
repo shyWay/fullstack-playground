@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fffbf6" />
+    <title>今天做什么？</title>
+    <style>
+      :root { --ink:#252323; --muted:#716d6a; --paper:#fffbf6; --peach:#ffd2bb; --orange:#e76738; --cream:#fff2df; --line:#eadfd5; --shadow:0 18px 50px rgba(102,69,48,.13); }
+      * { box-sizing:border-box; }
+      body { margin:0; min-height:100vh; color:var(--ink); font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif; background:radial-gradient(circle at 12% 15%,#ffe8c9 0 110px,transparent 111px),radial-gradient(circle at 91% 78%,#ffc8aa 0 135px,transparent 136px),var(--paper); }
+      main { width:min(940px,calc(100% - 32px)); margin:0 auto; padding:48px 0 72px; }
+      header { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-bottom:34px; }
+      .eyebrow { margin:0 0 9px; color:var(--orange); font-size:13px; font-weight:800; letter-spacing:.14em; }
+      h1 { margin:0; font-size:clamp(36px,7vw,64px); letter-spacing:-.07em; line-height:1; }
+      .subtitle { max-width:470px; margin:17px 0 0; color:var(--muted); font-size:16px; line-height:1.7; }
+      button { border:0; font:inherit; cursor:pointer; transition:transform .18s ease,box-shadow .18s ease,background .18s ease; }
+      button:active { transform:scale(.97) !important; }
+      .saved-btn { flex:none; display:flex; align-items:center; gap:8px; padding:12px 15px; border:1px solid var(--line); border-radius:999px; color:var(--ink); background:rgba(255,255,255,.65); font-weight:700; }
+      .saved-btn:hover { transform:translateY(-2px); box-shadow:0 7px 18px rgba(94,68,50,.10); }
+      .count { display:inline-grid; min-width:20px; height:20px; place-items:center; padding:0 5px; border-radius:10px; background:var(--peach); font-size:12px; }
+      .filters { display:flex; flex-wrap:wrap; gap:9px; margin-bottom:18px; }
+      .filter { padding:9px 14px; border:1px solid var(--line); border-radius:999px; background:rgba(255,255,255,.55); color:var(--muted); font-size:14px; font-weight:700; }
+      .filter.active { border-color:var(--ink); background:var(--ink); color:white; }
+      .card { position:relative; overflow:hidden; min-height:352px; padding:clamp(28px,6vw,56px); border:1px solid #f3d4c2; border-radius:30px; background:linear-gradient(135deg,#fff2e5,#ffdcc8); box-shadow:var(--shadow); }
+      .card::before,.card::after { position:absolute; content:""; border-radius:50%; pointer-events:none; }
+      .card::before { width:240px; height:240px; right:-78px; top:-90px; border:26px solid rgba(255,255,255,.27); }
+      .card::after { width:84px; height:84px; left:-30px; bottom:-34px; background:#f58b5b; opacity:.33; }
+      .card-top { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+      .tag { display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border-radius:999px; background:rgba(255,255,255,.64); color:#965036; font-size:13px; font-weight:800; }
+      .number { color:rgba(151,80,54,.65); font-size:13px; font-weight:800; }
+      .idea { position:relative; z-index:1; max-width:690px; margin:46px 0 34px; font-size:clamp(28px,5vw,50px); font-weight:850; letter-spacing:-.055em; line-height:1.2; }
+      .idea.changing { animation:pop .35s ease both; }
+      @keyframes pop { from { opacity:0; transform:translateY(12px) rotate(1deg); } to { opacity:1; transform:none; } }
+      .card-actions { position:relative; z-index:1; display:flex; align-items:center; gap:12px; }
+      .primary { display:inline-flex; align-items:center; gap:10px; padding:13px 18px; border-radius:14px; color:white; background:var(--orange); box-shadow:0 9px 0 #c65028; font-weight:800; }
+      .primary:hover { transform:translateY(-2px); box-shadow:0 11px 0 #c65028; }
+      .save { width:48px; height:48px; border:1px solid rgba(151,80,54,.2); border-radius:14px; color:#965036; background:rgba(255,255,255,.62); font-size:21px; }
+      .save.saved { background:#965036; color:white; }
+      .hint { margin:22px 3px 0; color:var(--muted); font-size:14px; }
+      .saved-panel { display:none; margin-top:26px; padding:24px; border:1px solid var(--line); border-radius:22px; background:rgba(255,255,255,.66); }
+      .saved-panel.open { display:block; }
+      .panel-header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; }
+      h2 { margin:0; font-size:19px; }
+      .clear { padding:7px 0; background:transparent; color:var(--orange); font-size:13px; font-weight:700; }
+      .saved-list { display:grid; gap:10px; margin:0; padding:0; list-style:none; }
+      .saved-item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 13px; border-radius:12px; background:#fff9f2; line-height:1.45; }
+      .remove { flex:none; width:27px; height:27px; border-radius:50%; background:#f5e8dc; color:#8d6855; }
+      .empty { margin:0; color:var(--muted); }
+      footer { margin-top:60px; color:#918b85; font-size:13px; text-align:center; }
+      kbd { padding:2px 6px; border:1px solid #ddd0c5; border-bottom-width:2px; border-radius:5px; background:#fffaf5; font-family:inherit; }
+      @media (max-width:580px) { main { padding-top:28px; } header { display:block; } .saved-btn { margin-top:22px; } .card { min-height:340px; border-radius:23px; } .idea { margin:42px 0 32px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">一份给犹豫时刻的菜单</p>
+          <h1>今天做什么？</h1>
+          <p class="subtitle">不用规划，也不必有意义。点一下，收下一件足够小、刚好可以开始的好玩小事。</p>
+        </div>
+        <button class="saved-btn" id="savedToggle" aria-expanded="false">♡ 我的收藏 <span class="count" id="savedCount">0</span></button>
+      </header>
+
+      <nav class="filters" aria-label="灵感类型">
+        <button class="filter active" data-category="全部">全部</button>
+        <button class="filter" data-category="出门">出门走走</button>
+        <button class="filter" data-category="创作">随手创作</button>
+        <button class="filter" data-category="治愈">温柔一下</button>
+        <button class="filter" data-category="好奇">满足好奇</button>
+      </nav>
+
+      <section class="card" aria-live="polite">
+        <div class="card-top"><span class="tag" id="tag">✦ 温柔一下</span><span class="number" id="number">01 / 32</span></div>
+        <p class="idea" id="idea"></p>
+        <div class="card-actions">
+          <button class="primary" id="randomBtn">换一个灵感 <span aria-hidden="true">↻</span></button>
+          <button class="save" id="saveBtn" aria-label="收藏这条灵感" title="收藏">♡</button>
+        </div>
+      </section>
+      <p class="hint">小提示：按 <kbd>空格</kbd> 也能随机抽一件事。</p>
+
+      <section class="saved-panel" id="savedPanel">
+        <div class="panel-header"><h2>留给以后的好主意</h2><button class="clear" id="clearBtn">清空收藏</button></div>
+        <ul class="saved-list" id="savedList"></ul>
+      </section>
+      <footer>今天不需要完成很多事。完成一件小小的，就很好。</footer>
+    </main>
+    <script>
+      const ideas = [
+        ['治愈','给阳台植物取一个离谱的新名字。'], ['出门','下楼走 5 分钟，认真看一眼天空。'], ['创作','用三种颜色画一张“不知道画了什么”的小画。'], ['好奇','查一个你常说、却从没查过的词的来历。'],
+        ['治愈','给五年前的自己写一句不会发出的夸奖。'], ['出门','绕一条平时不会走的路回家。'], ['创作','用冰箱里现有的食材发明一道新菜，并给它命名。'], ['好奇','听一首朋友可能会喜欢、但你从没听过的歌。'],
+        ['治愈','把手机倒扣 10 分钟，什么都不做。'], ['出门','去便利店挑一件从没买过的小东西。'], ['创作','给今天拍一张“电影剧照”。'], ['好奇','打开地图，找一个离你 20 公里内名字好玩的地方。'],
+        ['治愈','整理一个只有手掌大的角落。'], ['出门','找一棵树，观察它一分钟。'], ['创作','写下 5 个适合做乐队名字的词。'], ['好奇','问朋友一个不那么常规的问题：最近让你开心的小事是什么？'],
+        ['治愈','泡一杯热饮，第一口时只做这一件事。'], ['出门','戴上耳机走一小段路，假装自己在音乐视频里。'], ['创作','把一张旧照片配上全新的、荒谬的标题。'], ['好奇','随机读一篇维基百科，然后点开其中一个蓝色链接。'],
+        ['治愈','给自己换一套舒服但平时不太会穿的衣服。'], ['出门','找一家没去过的店，至少在门口停留 30 秒。'], ['创作','用 6 个字描述此刻的心情。'], ['好奇','找出家里最老的一样东西，想象它见过的故事。'],
+        ['治愈','把窗打开，让风在房间里待两分钟。'], ['出门','拍下你今天遇到的一个好看的影子。'], ['创作','做一张“今天值得纪念”的迷你歌单。'], ['好奇','给一个许久没联系的人发一句不需要回复的问候。'],
+        ['治愈','把一件一直拖着的小事，只做两分钟。'], ['出门','走到有阳光的地方，站一会儿。'], ['创作','随手折一个纸飞机，给它写一个目的地。'], ['好奇','看看你出生那天发生过什么新闻。']
+      ];
+      const categoryLabels = { '出门':'☀ 出门走走', '创作':'✎ 随手创作', '治愈':'✦ 温柔一下', '好奇':'⌕ 满足好奇' };
+      let category = '全部', current = null;
+      const $ = id => document.getElementById(id);
+      const getSaved = () => JSON.parse(localStorage.getItem('today-what-to-do-saved') || '[]');
+      const setSaved = items => localStorage.setItem('today-what-to-do-saved', JSON.stringify(items));
+      function candidates() { return ideas.filter(item => category === '全部' || item[0] === category); }
+      function renderIdea(force = false) {
+        const choices = candidates();
+        const options = choices.filter(item => force || item[1] !== current?.[1]);
+        current = options[Math.floor(Math.random() * options.length)] || choices[0];
+        $('tag').textContent = categoryLabels[current[0]];
+        $('number').textContent = String(ideas.indexOf(current) + 1).padStart(2,'0') + ' / ' + ideas.length;
+        const idea = $('idea'); idea.classList.remove('changing'); void idea.offsetWidth;
+        idea.textContent = current[1]; idea.classList.add('changing');
+        updateSaveButton();
+      }
+      function updateSaveButton() {
+        const saved = getSaved().some(item => item[1] === current?.[1]);
+        $('saveBtn').classList.toggle('saved', saved); $('saveBtn').textContent = saved ? '♥' : '♡';
+        $('saveBtn').setAttribute('aria-label', saved ? '取消收藏这条灵感' : '收藏这条灵感');
+      }
+      function renderSaved() {
+        const saved = getSaved(); $('savedCount').textContent = saved.length;
+        $('clearBtn').hidden = !saved.length;
+        $('savedList').innerHTML = saved.length ? saved.map((item, i) => `<li class="saved-item"><span>${item[1]}</span><button class="remove" data-index="${i}" aria-label="删除收藏">×</button></li>`).join('') : '<p class="empty">还没有收藏。遇到心动的小事，就把它留在这里吧。</p>';
+        updateSaveButton();
+      }
+      $('randomBtn').addEventListener('click', () => renderIdea());
+      $('saveBtn').addEventListener('click', () => { const saved=getSaved(); const index=saved.findIndex(item=>item[1]===current[1]); index >= 0 ? saved.splice(index,1) : saved.unshift(current); setSaved(saved); renderSaved(); });
+      document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => { category=button.dataset.category; document.querySelector('.filter.active').classList.remove('active'); button.classList.add('active'); renderIdea(true); }));
+      $('savedToggle').addEventListener('click', () => { const open=$('savedPanel').classList.toggle('open'); $('savedToggle').setAttribute('aria-expanded', open); });
+      $('savedList').addEventListener('click', event => { if (!event.target.matches('.remove')) return; const saved=getSaved(); saved.splice(Number(event.target.dataset.index),1); setSaved(saved); renderSaved(); });
+      $('clearBtn').addEventListener('click', () => { setSaved([]); renderSaved(); });
+      document.addEventListener('keydown', event => { if (event.code === 'Space' && !['BUTTON','INPUT'].includes(document.activeElement.tagName)) { event.preventDefault(); renderIdea(); } });
+      renderIdea(true); renderSaved();
+    </script>
+  </body>
+</html>
