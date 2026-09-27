@@ -1,0 +1,21 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.shyway.todaywhattodo'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'com.shyway.todaywhattodo'
+        minSdk 23
+        targetSdk 34
+        versionCode 1
+        versionName '1.0.0'
+    }
+}
+
+tasks.register('copyWebApp', Copy) {
+    from('../') {
+        include 'index.html', 'manifest.json', 'sw.js', 'icon.svg'
+    }
+    into 'src/main/assets'
+}
+preBuild.dependsOn(copyWebApp)

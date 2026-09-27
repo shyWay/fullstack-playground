@@ -1,0 +1,11 @@
+{
+  "name": "今天做什么？",
+  "short_name": "今天做什么",
+  "description": "随机抽一件轻松好玩的小事。",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fffbf6",
+  "theme_color": "#fffbf6",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

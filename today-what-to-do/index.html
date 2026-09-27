@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#fffbf6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="今天做什么" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon.svg" />
     <title>今天做什么？</title>
     <style>
       :root { --ink:#252323; --muted:#716d6a; --paper:#fffbf6; --peach:#ffd2bb; --orange:#e76738; --cream:#fff2df; --line:#eadfd5; --shadow:0 18px 50px rgba(102,69,48,.13); }
@@ -133,6 +138,7 @@
       $('clearBtn').addEventListener('click', () => { setSaved([]); renderSaved(); });
       document.addEventListener('keydown', event => { if (event.code === 'Space' && !['BUTTON','INPUT'].includes(document.activeElement.tagName)) { event.preventDefault(); renderIdea(); } });
       renderIdea(true); renderSaved();
+      if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
     </script>
   </body>
 </html>
