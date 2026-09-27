@@ -13,7 +13,7 @@ android {
 }
 
 tasks.register('copyWebApp', Copy) {
-    from('../') {
+    from('../../') {
         include 'index.html', 'manifest.json', 'sw.js', 'icon.svg'
     }
     into 'src/main/assets'
